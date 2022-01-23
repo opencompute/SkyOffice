@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import AddBusinessIcon from '@mui/icons-material/AddBusiness'
 import Button from '@mui/material/Button'
@@ -11,7 +11,11 @@ import GithubIcon from '../assets/icons/Github.png'
 import MessageIcon from '../assets/icons/Messages.png'
 import logo from '../assets/logo.png'
 import config from '../config.json'
+import { CreateRoomForm } from './CreateRoomForm'
+
 import { useAppSelector } from '../hooks'
+import phaserGame from '../PhaserGame'
+import Bootstrap from '../scenes/Bootstrap'
 
 const Wrapper = styled.div`
   display: none;
@@ -98,7 +102,25 @@ const SocialLinkWrapper = styled.div`
 `
 
 export default function OfficeDeskDialogs() {
+  const [createRoomFormOpen, setCreateRoomFormOpen] = useState(false)
+  const [clickedRoomNumber, setClickedRoomNumber] = useState('')
+  const [clickedRoomColor, setClickedRoomColor] = useState('')
   const isLobby = useAppSelector((state) => state.room.isLobby)
+
+  const handleClickOpen = (roomNumber: string, roomColor: string) => {
+    setClickedRoomNumber(roomNumber)
+    setClickedRoomColor(roomColor)
+    setCreateRoomFormOpen(true)
+    const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
+    currentScene?.disableKeys()
+  }
+
+  const handleClose = () => {
+    setCreateRoomFormOpen(false)
+    const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
+    currentScene?.enableKeys()
+  }
+
   return (
     <>
       {Object.keys(config.room).map((roomNumber, i) => {
@@ -124,7 +146,13 @@ export default function OfficeDeskDialogs() {
               <span className="number">&bull; 5-10</span>
               <img src={UserIcon} alt="user" />
             </Description>
-            <Button variant="outlined" color="primary" size="small" startIcon={<AddBusinessIcon />}>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              startIcon={<AddBusinessIcon />}
+              onClick={() => handleClickOpen(roomNumber, colorTheme)}
+            >
               Claim the space
             </Button>
           </Wrapper>
@@ -157,6 +185,12 @@ export default function OfficeDeskDialogs() {
           </Button>
         </Footer>
       </Wrapper>
+      <CreateRoomForm
+        open={createRoomFormOpen}
+        roomNumber={clickedRoomNumber}
+        colorTheme={clickedRoomColor}
+        handleClose={handleClose}
+      ></CreateRoomForm>
     </>
   )
 }

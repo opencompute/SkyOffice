@@ -65,8 +65,9 @@ function App() {
         {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
       </Backdrop>
 
-      <OfficeDeskDialogs />
-      <PhaserContainer id="phaser-container" />
+      <PhaserContainer id="phaser-container">
+        <OfficeDeskDialogs />
+      </PhaserContainer>
     </>
   )
 }

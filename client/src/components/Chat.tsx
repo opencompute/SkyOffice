@@ -131,12 +131,8 @@ const Message = ({ chatMessage, messageType }) => {
 
   return (
     <MessageWrapper
-      onMouseEnter={() => {
-        setTooltipOpen(true)
-      }}
-      onMouseLeave={() => {
-        setTooltipOpen(false)
-      }}
+      onMouseEnter={() => setTooltipOpen(true)}
+      onMouseLeave={() => setTooltipOpen(false)}
     >
       <Tooltip
         open={tooltipOpen}
@@ -145,11 +141,7 @@ const Message = ({ chatMessage, messageType }) => {
         arrow
       >
         {messageType === MessageType.REGULAR_MESSAGE ? (
-          <p
-            style={{
-              color: getColorByString(chatMessage.author),
-            }}
-          >
+          <p style={{ color: getColorByString(chatMessage.author) }}>
             {chatMessage.author}: <span>{chatMessage.content}</span>
           </p>
         ) : (
