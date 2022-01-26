@@ -8,6 +8,13 @@ import WhiteboardIcon from '../assets/icons/Whiteboard.png'
 import UserIcon from '../assets/icons/User.png'
 import TwitterIcon from '../assets/icons/Twitter.png'
 import GithubIcon from '../assets/icons/Github.png'
+import DiscordIcon from '../assets/icons/Discord.png'
+import SlackIcon from '../assets/icons/Slack.png'
+import YoutubeIcon from '../assets/icons/Youtube.png'
+import TiktokIcon from '../assets/icons/Tiktok.png'
+import InstagramIcon from '../assets/icons/Instagram.png'
+import TelegramIcon from '../assets/icons/Telegram.png'
+import FacebookIcon from '../assets/icons/Facebook.png'
 import MessageIcon from '../assets/icons/Messages.png'
 import logo from '../assets/logo.png'
 import config from '../config.json'
@@ -16,6 +23,18 @@ import { CreateRoomForm } from './CreateRoomForm'
 import { useAppSelector } from '../hooks'
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
+
+export const socials = [
+  { name: 'Twitter', icon: TwitterIcon },
+  { name: 'Github', icon: GithubIcon },
+  { name: 'Discord', icon: DiscordIcon },
+  { name: 'Slack', icon: SlackIcon },
+  { name: 'Youtube', icon: YoutubeIcon },
+  { name: 'Tiktok', icon: TiktokIcon },
+  { name: 'Instagram', icon: InstagramIcon },
+  { name: 'Telegram', icon: TelegramIcon },
+  { name: 'Facebook', icon: FacebookIcon },
+]
 
 const Wrapper = styled.div`
   display: none;
@@ -107,7 +126,7 @@ export default function OfficeDeskDialogs() {
   const [clickedRoomColor, setClickedRoomColor] = useState('')
   const isLobby = useAppSelector((state) => state.room.isLobby)
 
-  const handleClickOpen = (roomNumber: string, roomColor: string) => {
+  const handleFormOpen = (roomNumber: string, roomColor: string) => {
     setClickedRoomNumber(roomNumber)
     setClickedRoomColor(roomColor)
     setCreateRoomFormOpen(true)
@@ -115,7 +134,7 @@ export default function OfficeDeskDialogs() {
     currentScene?.disableKeys()
   }
 
-  const handleClose = () => {
+  const handleFormClose = () => {
     setCreateRoomFormOpen(false)
     const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
     currentScene?.enableKeys()
@@ -151,7 +170,7 @@ export default function OfficeDeskDialogs() {
               color="primary"
               size="small"
               startIcon={<AddBusinessIcon />}
-              onClick={() => handleClickOpen(roomNumber, colorTheme)}
+              onClick={() => handleFormOpen(roomNumber, colorTheme)}
             >
               Claim the space
             </Button>
@@ -189,7 +208,7 @@ export default function OfficeDeskDialogs() {
         open={createRoomFormOpen}
         roomNumber={clickedRoomNumber}
         colorTheme={clickedRoomColor}
-        handleClose={handleClose}
+        handleFormClose={handleFormClose}
       ></CreateRoomForm>
     </>
   )

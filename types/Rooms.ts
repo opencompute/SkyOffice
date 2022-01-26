@@ -12,6 +12,7 @@ export interface IRoomData {
   name?: string
   description?: string
   password?: string | null
+  social?: { type: string; link: string }
   autoDispose?: boolean
   playerName?: string
   playerAnim?: string
