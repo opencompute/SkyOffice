@@ -7,18 +7,17 @@ export enum RoomType {
   OFFICE = 'office',
 }
 
+export type PartialPlayer = Pick<IPlayer, 'webRTCId' | 'readyToConnect' | 'videoConnected'> &
+  Partial<IPlayer>
+
 export interface IRoomData {
   roomNumber?: string | null
   name?: string
   description?: string
+  teamMessage?: string
   password?: string | null
-  social?: { type: string; link: string }
-  autoDispose?: boolean
-  playerName?: string
-  playerAnim?: string
-  enterX?: number
-  enterY?: number
-  webRTCId?: string
-  readyToConnect?: boolean
-  videoConnected?: boolean
+  socialType?: string
+  socialLink?: string
+  websiteLink?: string
+  player?: PartialPlayer
 }

@@ -6,33 +6,27 @@ import {
   IWhiteboard,
   IChatMessage,
 } from '../../../types/IOfficeState'
+import { PartialPlayer } from '../../../types/Rooms'
 
 export class Player extends Schema implements IPlayer {
-  @type('string') name = ''
-  @type('number') x = 0
-  @type('number') y = 0
-  @type('string') anim = 'adam_idle_down'
-  @type('string') webRTCId = ''
-  @type('boolean') readyToConnect = false
-  @type('boolean') videoConnected = false
+  @type('string') name
+  @type('number') x
+  @type('number') y
+  @type('string') anim
+  @type('string') webRTCId
+  @type('boolean') readyToConnect
+  @type('boolean') videoConnected
 
-  constructor(
-    playerName?: string,
-    playerAnim?: string,
-    enterX?: number,
-    enterY?: number,
-    webRTCId?: string,
-    readyToConnect?: boolean,
-    videoConnected?: boolean
-  ) {
+  constructor(player: PartialPlayer) {
     super()
-    if (playerName) this.name = playerName
-    if (playerAnim) this.anim = playerAnim
-    if (enterX) this.x = enterX
-    if (enterY) this.y = enterY
-    if (webRTCId) this.webRTCId = webRTCId
-    if (readyToConnect) this.readyToConnect = readyToConnect
-    if (videoConnected) this.videoConnected = videoConnected
+    const { webRTCId, readyToConnect, videoConnected, name, x, y, anim } = player
+    this.webRTCId = webRTCId
+    this.readyToConnect = readyToConnect
+    this.videoConnected = videoConnected
+    this.name = name || ''
+    this.anim = anim || 'adam_idle_down'
+    this.x = x || 0
+    this.y = y || 0
   }
 }
 

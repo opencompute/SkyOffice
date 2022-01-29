@@ -25,11 +25,12 @@ export class SkyOffice extends Room<OfficeState> {
   private password: string | null = null
 
   async onCreate(options: IRoomData) {
-    const { name, roomNumber, description, password, autoDispose } = options
+    this.autoDispose = false
+
+    const { name, roomNumber, description, password } = options
     this.name = name
     this.description = description
     this.roomNumber = roomNumber
-    this.autoDispose = autoDispose
 
     let hasPassword = false
     if (password) {
@@ -166,20 +167,14 @@ export class SkyOffice extends Room<OfficeState> {
       if (!validPassword) throw new ServerError(403, 'Password is incorrect!')
     }
     for (const { webRTCId } of this.state.players.values()) {
-      if (webRTCId === options.webRTCId) throw new ServerError(403, 'Duplicated user!')
+      if (webRTCId === options.player.webRTCId) throw new ServerError(403, 'Duplicated user!')
     }
 
     return true
   }
 
   onJoin(client: Client, options: IRoomData) {
-    const { playerName, playerAnim, enterX, enterY, webRTCId, videoConnected, readyToConnect } =
-      options
-    this.state.players.set(
-      client.sessionId,
-      new Player(playerName, playerAnim, enterX, enterY, webRTCId, videoConnected, readyToConnect)
-    )
-
+    this.state.players.set(client.sessionId, new Player(options.player))
     client.send(Message.SEND_ROOM_DATA, {
       name: this.name,
       roomNumber: this.roomNumber,

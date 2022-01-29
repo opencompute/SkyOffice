@@ -1,7 +1,7 @@
 import { Client, Room } from 'colyseus.js'
 import { IComputer, IOfficeState, IPlayer, IWhiteboard } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
-import { IRoomData, RoomType } from '../../../types/Rooms'
+import { IRoomData, PartialPlayer, RoomType } from '../../../types/Rooms'
 import { ItemType } from '../../../types/Items'
 import WebRTC from '../web/WebRTC'
 import { Event } from '../events/EventCenter'
@@ -66,25 +66,22 @@ class Network {
 
     // this gets triggered when Heroku free dyno cuts the websocket connection
     // when client is inactive for too long
-    this.lobby.onLeave((code) => {
-      console.log('Lobby onLeave code:', code)
-      window.alert('Server connection is dropped due to inactivity, please reload the page.')
-    })
+    this.lobby.onLeave((code) => window.alert('Session timeout, please reload the page.'))
   }
 
   // method to join the public lobby
-  async joinOrCreateLobby(enterX?: number, enterY?: number) {
+  async joinOrCreateLobby(x: number, y: number) {
     const { name, texture, videoConnected, loggedIn } = store.getState().user
-    const options = {
+    const player: PartialPlayer = {
       webRTCId: this.webRTCId,
       readyToConnect: loggedIn,
       videoConnected,
-      ...(name && { playerName: name }),
-      ...(texture && { playerAnim: `${texture}_idle_down` }),
-      ...(enterX && { enterX }),
-      ...(enterY && { enterY }),
+      x,
+      y,
+      ...(name && { name }),
+      ...(texture && { anim: `${texture}_idle_down` }),
     }
-    this.room = await this.client.joinOrCreate(RoomType.LOBBY, options)
+    this.room = await this.client.joinOrCreate(RoomType.LOBBY, { player })
     this.initialize()
     if (name) store.dispatch(pushPlayerJoinedMessage(name))
   }
@@ -92,23 +89,22 @@ class Network {
   // method to join an office
   async joinOffice(roomNumber: string) {
     const { name, texture, videoConnected, loggedIn } = store.getState().user
-    const options = {
-      playerName: name,
-      playerAnim: `${texture}_idle_up`,
+    const player: PartialPlayer = {
       webRTCId: this.webRTCId,
       readyToConnect: loggedIn,
       videoConnected,
+      name,
+      anim: `${texture}_idle_up`,
     }
     if (roomNumber === RoomType.PUBLIC) {
-      this.room = await this.client.joinOrCreate(RoomType.PUBLIC, options)
+      this.room = await this.client.joinOrCreate(RoomType.PUBLIC, { player })
     } else {
       this.room = await this.client.joinOrCreate(RoomType.OFFICE, {
-        ...options,
+        player,
         name: roomNumber,
         roomNumber,
         description: roomNumber,
         password: null,
-        autoDispose: false,
       })
     }
     this.initialize()
@@ -132,12 +128,11 @@ class Network {
 
   // method to create a custom room
   async createCustom(roomData: IRoomData) {
-    const { name, description, password, autoDispose } = roomData
+    const { name, description, password } = roomData
     this.room = await this.client.create(RoomType.OFFICE, {
       name,
       description,
       password,
-      autoDispose,
     })
     this.initialize()
   }

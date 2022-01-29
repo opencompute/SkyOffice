@@ -9,13 +9,12 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Avatar from '@mui/material/Avatar'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
-import Paper from '@mui/material/Paper'
-import TwitterIcon from '../assets/icons/Twitter.png'
-import GithubIcon from '../assets/icons/Github.png'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import FormHelperText from '@mui/material/FormHelperText'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 import config from '../config.json'
 import { IRoomData } from '../../../types/Rooms'
@@ -23,9 +22,7 @@ import { IRoomData } from '../../../types/Rooms'
 import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import { MenuItem, Select, SelectChangeEvent } from '@mui/material'
+
 import { socials } from './OfficeDeskDialogs'
 
 const StyledDialog = styled(Dialog)`
@@ -94,16 +91,20 @@ const TextFieldLabel = styled.p`
 
 export const CreateRoomForm = ({ open, roomNumber, colorTheme, handleFormClose }) => {
   const [values, setValues] = useState<IRoomData>({
-    roomNumber: null,
+    roomNumber,
     name: '',
     description: '',
+    teamMessage: '',
     password: null,
-    autoDispose: true,
-    social: undefined,
+    socialType: '',
+    socialLink: '',
+    websiteLink: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [nameFieldEmpty, setNameFieldEmpty] = useState(false)
   const [descriptionFieldEmpty, setDescriptionFieldEmpty] = useState(false)
+  const [socialTypeEmpty, setSocialTypeEmpty] = useState(false)
+  const [socialLinkEmpty, setSocialLinkEmpty] = useState(false)
 
   const handleChange =
     (prop: keyof IRoomData) =>
@@ -115,10 +116,18 @@ export const CreateRoomForm = ({ open, roomNumber, colorTheme, handleFormClose }
     event.preventDefault()
     const isValidName = values.name !== ''
     const isValidDescription = values.description !== ''
+    const isValidSocialType = values.socialType !== ''
+    const isValidSocialLink = values.socialLink !== ''
 
     if (isValidName === nameFieldEmpty) setNameFieldEmpty(!nameFieldEmpty)
     if (isValidDescription === descriptionFieldEmpty)
       setDescriptionFieldEmpty(!descriptionFieldEmpty)
+
+    setSocialLinkEmpty(false)
+    setSocialTypeEmpty(false)
+    // if only social type or social link has value, show error on the value-missing one
+    if (isValidSocialType !== isValidSocialLink)
+      isValidSocialType ? setSocialLinkEmpty(true) : setSocialTypeEmpty(true)
 
     // create custom room if name and description are not empty
     // if (isValidName && isValidDescription) {
@@ -153,17 +162,8 @@ export const CreateRoomForm = ({ open, roomNumber, colorTheme, handleFormClose }
         </ButtonGroupWrapper>
       </Title>
       <Divider />
+
       <DialogContent className="dialog-content">
-        {/* <Paper
-          variant="outlined"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10,
-            padding: 10,
-            background: 'transparent',
-          }}
-        > */}
         <div>
           <Title>About your team</Title>
           <Description>These will be publicly displayed in the lobby area</Description>
@@ -179,8 +179,8 @@ export const CreateRoomForm = ({ open, roomNumber, colorTheme, handleFormClose }
           defaultValue={values.name}
           onChange={handleChange('name')}
         />
-        <TextFieldLabel>Public message</TextFieldLabel>
 
+        <TextFieldLabel>Public message</TextFieldLabel>
         <TextField
           hiddenLabel
           variant="filled"
@@ -197,7 +197,12 @@ export const CreateRoomForm = ({ open, roomNumber, colorTheme, handleFormClose }
         <div style={{ display: 'flex', gap: 20 }}>
           <FormControl variant="filled" sx={{ width: 120 }}>
             <InputLabel color="secondary">Social</InputLabel>
-            <Select value={values.social} color="secondary" onChange={handleChange('social')}>
+            <Select
+              value={values.socialType}
+              color="secondary"
+              onChange={handleChange('socialType')}
+              error={socialTypeEmpty}
+            >
               <MenuItem value="" color="secondary">
                 <em>None</em>
               </MenuItem>
@@ -210,16 +215,18 @@ export const CreateRoomForm = ({ open, roomNumber, colorTheme, handleFormClose }
                 )
               })}
             </Select>
+            {socialTypeEmpty && <FormHelperText error>required</FormHelperText>}
           </FormControl>
           <TextField
             hiddenLabel
             fullWidth
             variant="filled"
             color="secondary"
-            error={nameFieldEmpty}
+            error={socialLinkEmpty}
             placeholder="Full url (e.g., https://twitter.com/SkyOfficeApp)"
-            helperText={nameFieldEmpty && 'Name is required'}
-            onChange={handleChange('name')}
+            defaultValue={values.socialLink}
+            helperText={socialLinkEmpty && 'Social link url is required'}
+            onChange={handleChange('socialLink')}
           />
         </div>
         <TextFieldLabel>Website link (optional)</TextFieldLabel>
@@ -228,12 +235,31 @@ export const CreateRoomForm = ({ open, roomNumber, colorTheme, handleFormClose }
           variant="filled"
           color="secondary"
           placeholder="Full url (e.g., https://skyoffice.app)"
-          onChange={handleChange('name')}
+          defaultValue={values.websiteLink}
+          onChange={handleChange('websiteLink')}
         />
-        {/* </Paper> */}
+
+        <Divider className="section-divider" />
+        <div>
+          <Title>Words to your team</Title>
+          <Description>
+            This will be displayed to visitors/team members upon entering the office space
+          </Description>
+        </div>
+        <TextFieldLabel>Team message (optional)</TextFieldLabel>
+        <TextField
+          hiddenLabel
+          variant="filled"
+          color="secondary"
+          placeholder="Welcome👋 today's tasks are... Meeting time is at..."
+          defaultValue={values.teamMessage}
+          multiline
+          rows={4}
+          onChange={handleChange('teamMessage')}
+        />
+
         <Divider className="section-divider" />
         <Title>Settings</Title>
-
         <TextFieldLabel>Password (optional)</TextFieldLabel>
         <TextField
           type={showPassword ? 'text' : 'password'}

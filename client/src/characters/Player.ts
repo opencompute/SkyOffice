@@ -77,41 +77,48 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   updateDialogBubble(content: string) {
+    content = this.playerName.text + ': ' + content
     this.clearDialogBubble()
 
     // preprocessing for dialog bubble text (maximum 70 characters)
     const dialogBubbleText = content.length <= 70 ? content : content.substring(0, 70).concat('...')
 
     const innerText = this.scene.add
-      .text(0, 0, dialogBubbleText, { wordWrap: { width: 165, useAdvancedWrap: true } })
+      .text(0, 0, dialogBubbleText, { wordWrap: { width: 160, useAdvancedWrap: true } })
       .setFontFamily('Arial')
       .setFontSize(12)
       .setColor('#000000')
-      .setOrigin(0.5)
+      .setOrigin(0, 0.5)
 
     // set dialogBox slightly larger than the text in it
     const innerTextHeight = innerText.height
     const innerTextWidth = innerText.width
 
-    innerText.setY(-innerTextHeight / 2 - this.playerName.height / 2)
-    const dialogBoxWidth = innerTextWidth + 10
-    const dialogBoxHeight = innerTextHeight + 3
-    const dialogBoxX = innerText.x - innerTextWidth / 2 - 5
+    innerText.setY(-innerTextHeight / 2 - 6)
+    const dialogBoxWidth = innerTextWidth + 8
+    const dialogBoxHeight = innerTextHeight + 4
+    const dialogBoxX = innerText.x - 3
     const dialogBoxY = innerText.y - innerTextHeight / 2 - 2
 
     this.playerDialogBubble.add(
       this.scene.add
         .graphics()
         .fillStyle(0xffffff, 1)
-        .fillRoundedRect(dialogBoxX, dialogBoxY, dialogBoxWidth, dialogBoxHeight, 3)
-        .lineStyle(1, 0x000000, 1)
-        .strokeRoundedRect(dialogBoxX, dialogBoxY, dialogBoxWidth, dialogBoxHeight, 3)
+        .fillRoundedRect(dialogBoxX, dialogBoxY, dialogBoxWidth, dialogBoxHeight, 8)
+    )
+    this.playerDialogBubble.add(
+      this.scene.add.graphics().fillStyle(0xffffff, 1).fillCircle(5, 0, 3)
+    )
+    this.playerDialogBubble.add(
+      this.scene.add.graphics().fillStyle(0xffffff, 1).fillCircle(0, 5, 2)
     )
     this.playerDialogBubble.add(innerText)
+    this.playerName.setAlpha(0)
 
     // After 6 seconds, clear the dialog bubble
     this.timeoutID = window.setTimeout(() => {
       this.clearDialogBubble()
+      this.playerName.setAlpha(1)
     }, 6000)
   }
 

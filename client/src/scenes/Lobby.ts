@@ -9,14 +9,12 @@ export default class Lobby extends Scene {
   }
 
   async create(data: ISceneData) {
+    if (network.room) return
+
     this.map = this.make.tilemap({ key: 'lobby_map' })
     super.create(data)
 
-    if (data.enterX && data.enterY && !network.room) {
-      await network.joinOrCreateLobby(data.enterX, data.enterY + 32)
-    } else {
-      await network.joinOrCreateLobby()
-    }
+    await network.joinOrCreateLobby(data.enterX!, data.enterY! + 32)
     this.spawnMyPlayer()
 
     const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
